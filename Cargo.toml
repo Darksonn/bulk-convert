@@ -1,7 +1,6 @@
 [package]
-name = "convert"
+name = "bulk-convert"
 version = "0.1.0"
 authors = ["Alice Ryhl <alice@ryhl.io>"]
 
 [dependencies]
-nfd = "0.0.4"
