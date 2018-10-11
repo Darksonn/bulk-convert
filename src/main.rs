@@ -52,7 +52,7 @@ fn get_yes_no(
     }
 }
 fn split_from<'a>(from_str: &'a str) -> Vec<&'a str> {
-    from_str.split(|c: char| !c.is_alphabetic()).filter(|s| s.len() > 0).collect()
+    from_str.split(|c: char| !c.is_alphanumeric()).filter(|s| s.len() > 0).collect()
 }
 
 fn find_files(
@@ -143,7 +143,7 @@ fn real_main() -> Result<(), Box<::std::error::Error>> {
     let stdin = stdin.lock();
     let mut lines = stdin.lines();
 
-    println!("Bulk converter v0.1.0");
+    println!("Bulk converter v0.1.1");
     println!("Which file types would you like to convert from?");
     println!("Examples:");
     println!("  png");
@@ -194,7 +194,7 @@ fn real_main() -> Result<(), Box<::std::error::Error>> {
     println!();
     let separate_folder = get_yes_no(
         &mut lines,
-        "Should convertion results be saved in a separate folder?",
+        "Should conversion results be saved in a separate folder?",
         false
     )?;
     let save_location = if separate_folder {

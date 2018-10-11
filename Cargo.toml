@@ -1,6 +1,9 @@
 [package]
 name = "bulk-convert"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Alice Ryhl <alice@ryhl.io>"]
+
+[profile.release]
+panic = "abort"
 
 [dependencies]
