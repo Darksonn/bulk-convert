@@ -13,7 +13,7 @@ fn ensure_imagemagick() -> IoResult<()> {
     convertexe.push("ffmpeg.exe");
     if !convertexe.exists() {
         println!("ffmpeg.exe not found, creating...");
-        let convert = include_bytes!("../imagemagick/ffmpeg.exe");
+        let convert = include_bytes!("../ffmpeg.exe");
         let mut file = File::create(convertexe)?;
         file.write(convert)?;
     }
