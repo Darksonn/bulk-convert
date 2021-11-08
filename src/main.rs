@@ -145,7 +145,7 @@ fn real_main() -> Result<(), Box<dyn ::std::error::Error>> {
     let stdin = stdin.lock();
     let mut lines = stdin.lines();
 
-    println!("Bulk converter v0.1.1");
+    println!("Bulk converter v0.1.2");
     println!("Which file types would you like to convert from?");
     println!("Examples:");
     println!("  png");
@@ -156,7 +156,7 @@ fn real_main() -> Result<(), Box<dyn ::std::error::Error>> {
     let from_str = get_line(&mut lines)?;
     let from = split_from(&from_str);
     if from.len() == 0 {
-        println!("No file types specified.");
+        println!("No input file types specified.");
         return Ok(());
     }
 
@@ -165,7 +165,7 @@ fn real_main() -> Result<(), Box<dyn ::std::error::Error>> {
     let to_str = get_line(&mut lines)?;
     let to = to_str.trim();
     if to.len() == 0 {
-        println!("No to selected.");
+        println!("No output file type specified.");
         return Ok(());
     }
 
