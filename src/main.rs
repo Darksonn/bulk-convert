@@ -6,16 +6,22 @@ use std::fs;
 use std::collections::VecDeque;
 
 #[cfg(windows)]
-fn ensure_imagemagick() -> IoResult<()> {
-    use std::fs::File;
+fn ensure_imagemagick(ffmpeg_path: &mut String) -> IoResult<()> {
+    use which::which;
     use std::env;
     let mut convertexe = env::current_dir().unwrap();
     convertexe.push("ffmpeg.exe");
     if !convertexe.exists() {
-        println!("ffmpeg.exe not found, creating...");
-        let convert = include_bytes!("../ffmpeg.exe");
-        let mut file = File::create(convertexe)?;
-        file.write(convert)?;
+        println!("ffmpeg.exe not found in current directory. checking PATH for it...");
+        let result = which("ffmpeg");
+        match result {
+            Result::Ok(ref path) => {
+                *ffmpeg_path = path.to_str().unwrap().to_string();
+                println!("ffmpeg.exe found on PATH at {}! Proceeding with execution...", ffmpeg_path);
+            }
+            _ => panic!("ffmpeg.exe not found in PATH either! exiting program..."),
+        }
+        //TODO: add option for users to copy ffmpeg executable from path to current directory
     }
     Ok(())
 }
@@ -78,6 +84,7 @@ fn find_files(
 }
 
 fn convert_files(
+    ffmpeg_path: &str,
     files: &[PathBuf],
     save_location: Option<PathBuf>,
     to: &str,
@@ -100,12 +107,7 @@ fn convert_files(
                 parent
             },
         };
-        let path = if cfg!(windows) {
-            ".\\ffmpeg.exe"
-        } else {
-            "ffmpeg"
-        };
-        let child = Command::new(path)
+        let child = Command::new(ffmpeg_path)
             .arg("-hide_banner")
             .arg("-i")
             .arg(file.as_os_str())
@@ -137,13 +139,13 @@ fn convert_files(
     Ok(())
 }
 
-fn real_main() -> Result<(), Box<::std::error::Error>> {
+fn real_main() -> Result<(), Box<dyn ::std::error::Error>> {
 
     let stdin = io::stdin();
     let stdin = stdin.lock();
     let mut lines = stdin.lines();
 
-    println!("Bulk converter v0.1.1");
+    println!("Bulk converter v0.1.2");
     println!("Which file types would you like to convert from?");
     println!("Examples:");
     println!("  png");
@@ -154,7 +156,7 @@ fn real_main() -> Result<(), Box<::std::error::Error>> {
     let from_str = get_line(&mut lines)?;
     let from = split_from(&from_str);
     if from.len() == 0 {
-        println!("No file types specified.");
+        println!("No input file types specified.");
         return Ok(());
     }
 
@@ -163,7 +165,7 @@ fn real_main() -> Result<(), Box<::std::error::Error>> {
     let to_str = get_line(&mut lines)?;
     let to = to_str.trim();
     if to.len() == 0 {
-        println!("No to selected.");
+        println!("No output file type specified.");
         return Ok(());
     }
 
@@ -204,10 +206,15 @@ fn real_main() -> Result<(), Box<::std::error::Error>> {
         None
     };
 
+    let mut ffmpeg_path = if cfg!(windows) {
+        ".\\ffmpeg.exe".to_string()
+    } else {
+        "ffmpeg".to_string()
+    };
     #[cfg(windows)]
-    ensure_imagemagick()?;
+    ensure_imagemagick(&mut ffmpeg_path)?;
 
-    convert_files(&files, save_location, to)?;
+    convert_files(ffmpeg_path.as_str(), &files, save_location, to)?;
 
     Ok(())
 }
